@@ -1,3 +1,11 @@
 # purchased copyrighted book — do not publish
 全新制多益TOEIC必考單字3000.pdf
 *.pdf
+
+# backend
+backend/.env
+backend/__pycache__/
+backend/app/__pycache__/
+backend/app/routers/__pycache__/
+backend/.venv/
+

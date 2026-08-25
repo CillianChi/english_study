@@ -1,0 +1,16 @@
+services:
+  db:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: toeic
+      POSTGRES_PASSWORD: toeic
+      POSTGRES_DB: toeic
+    ports:
+      - "5432:5432"
+    volumes:
+      - toeic_pgdata:/var/lib/postgresql/data
+      - ./schema.sql:/docker-entrypoint-initdb.d/01_schema.sql
+
+volumes:
+  toeic_pgdata:
