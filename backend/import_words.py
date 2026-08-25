@@ -36,37 +36,53 @@ def main():
             for entry in json.load(f):
                 meanings[entry["w"]] = entry.get("d")
 
-    rows = []
-    with open(csv_path, newline="", encoding="utf-8") as f:
+    word_rows = []
+    categories_by_word = {}
+    with open(csv_path, newline="", encoding="utf-8-sig") as f:
         reader = csv.DictReader(f)
         for r in reader:
-            rows.append((
-                r["word"], r["pos"], r["category_codes"], r["category_names"],
-                meanings.get(r["word"]),
-            ))
+            word_rows.append((r["word"], r["pos"], meanings.get(r["word"])))
+            categories_by_word[r["word"]] = r["category_codes"].split("|")
 
     conn = psycopg2.connect(database_url)
     try:
         with conn.cursor() as cur:
-            execute_values(
+            id_rows = execute_values(
                 cur,
                 """
-                INSERT INTO words (word, pos, category_code, category_name, meaning_zh)
+                INSERT INTO words (word, pos, meaning_zh)
                 VALUES %s
                 ON CONFLICT (word) DO UPDATE SET
                     pos = EXCLUDED.pos,
-                    category_code = EXCLUDED.category_code,
-                    category_name = EXCLUDED.category_name,
                     meaning_zh = EXCLUDED.meaning_zh
+                RETURNING id, word
                 """,
-                rows,
+                word_rows,
+                fetch=True,
+            )
+            word_ids = {word: wid for wid, word in id_rows}
+
+            cat_rows = [
+                (word_ids[word], code, order)
+                for word, codes in categories_by_word.items()
+                for order, code in enumerate(codes)
+            ]
+            cur.execute(
+                "DELETE FROM word_categories WHERE word_id = ANY(%s)",
+                (list(word_ids.values()),),
+            )
+            execute_values(
+                cur,
+                "INSERT INTO word_categories (word_id, category_code, sort_order) VALUES %s",
+                cat_rows,
             )
         conn.commit()
     finally:
         conn.close()
 
-    matched = sum(1 for r in rows if r[4])
-    print(f"Imported {len(rows)} words from {csv_path} ({matched} with Chinese meaning)")
+    matched = sum(1 for r in word_rows if r[2])
+    print(f"Imported {len(word_rows)} words from {csv_path} ({matched} with Chinese meaning)")
+    print(f"Inserted {len(cat_rows)} word-category tags")
 
 
 if __name__ == "__main__":

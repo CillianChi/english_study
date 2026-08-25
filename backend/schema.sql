@@ -17,13 +17,24 @@ CREATE TABLE words (
     id            SERIAL PRIMARY KEY,
     word          TEXT NOT NULL UNIQUE,
     pos           TEXT,
-    category_code TEXT,
-    category_name TEXT,
     meaning_zh    TEXT
 );
 
-CREATE INDEX idx_words_category ON words(category_code);
 CREATE INDEX idx_words_word_trgm ON words USING gin (word gin_trgm_ops);
+
+-- 一個字可以同時屬於多個場景分類（多對多），所以拆成獨立的關聯表，
+-- 不要塞進 words 的單一欄位——單一欄位存 "WORK|TITLE" 這種複合字串
+-- 會讓 category_code = 'WORK' 之類的查詢完全比對不到多重標籤的字。
+-- sort_order 保留原始分類清單裡「第一個標籤」的順序，sort_order = 0 視為主分類，
+-- 用在像 _interleave_by_category 這種只需要「挑一個代表分類」分桶的場景。
+CREATE TABLE word_categories (
+    word_id       INT  NOT NULL REFERENCES words(id) ON DELETE CASCADE,
+    category_code TEXT NOT NULL,
+    sort_order    SMALLINT NOT NULL DEFAULT 0,
+    PRIMARY KEY (word_id, category_code)
+);
+
+CREATE INDEX idx_word_categories_code ON word_categories(category_code);
 
 -- 每個使用者、每個字的 FSRS 狀態
 -- state/step/stability/difficulty/due/last_review 直接對應 fsrs.Card 的欄位，

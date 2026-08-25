@@ -7,6 +7,7 @@ from sqlalchemy import text
 from sqlalchemy.orm import Session
 
 from .. import fsrs_service
+from ..categories import CATEGORY_NAMES
 from ..db import get_db
 from ..deps import get_current_user_id
 from ..review_service import record_review
@@ -17,12 +18,21 @@ router = APIRouter(tags=["review"])
 NEW_WORDS_PER_SESSION = 10
 
 
+def _primary_category(row: dict) -> str:
+    """A word can carry several tags; sort_order 0 (codes[0]) is its primary
+    one and is all interleaving needs — a representative bucket key, not
+    the full tag list (which still goes to the client as category_codes)."""
+    codes = row.get("category_codes")
+    return codes[0] if codes else ""
+
+
 def _interleave_by_category(rows: list[dict]) -> list[dict]:
-    """Round-robin across category_code so a session doesn't run through one
-    whole category before touching another (interleaving > blocking)."""
+    """Round-robin across each word's primary category so a session doesn't
+    run through one whole category before touching another (interleaving >
+    blocking)."""
     buckets: dict[str, list[dict]] = defaultdict(list)
     for r in rows:
-        buckets[r["category_code"] or ""].append(r)
+        buckets[_primary_category(r)].append(r)
     for bucket in buckets.values():
         random.shuffle(bucket)
 
@@ -59,13 +69,27 @@ def get_due(
         {"uid": user_id, "cutoff": overdue_cutoff},
     ).scalar_one()
 
+    # word_categories.sort_order = 0 is each word's primary tag; array_agg
+    # (ordered) gives the full multi-tag list for display. Both come from
+    # the one join instead of a per-word N+1 query.
+    category_join = """
+        LEFT JOIN LATERAL (
+            SELECT
+                array_agg(wc.category_code ORDER BY wc.sort_order) AS codes
+            FROM word_categories wc
+            WHERE wc.word_id = w.id
+        ) wc_agg ON true
+    """
+
     due_rows = db.execute(
         text(
-            """
+            f"""
             SELECT ls.word_id, ls.state, ls.stability, ls.difficulty, ls.due,
-                   ls.reps, ls.lapses, w.word, w.pos, w.category_code, w.category_name, w.meaning_zh
+                   ls.reps, ls.lapses, w.word, w.pos, w.meaning_zh,
+                   wc_agg.codes AS category_codes
             FROM learning_state ls
             JOIN words w ON w.id = ls.word_id
+            {category_join}
             WHERE ls.user_id = :uid AND ls.due <= :now
             ORDER BY ls.due ASC
             LIMIT :limit
@@ -76,10 +100,12 @@ def get_due(
 
     fresh_rows = db.execute(
         text(
-            """
-            SELECT w.id AS word_id, w.word, w.pos, w.category_code, w.category_name, w.meaning_zh
+            f"""
+            SELECT w.id AS word_id, w.word, w.pos, w.meaning_zh,
+                   wc_agg.codes AS category_codes
             FROM words w
             LEFT JOIN learning_state ls ON ls.word_id = w.id AND ls.user_id = :uid
+            {category_join}
             WHERE ls.word_id IS NULL
             ORDER BY w.id ASC
             LIMIT :limit
@@ -113,13 +139,14 @@ def get_due(
             if cloze is None:
                 tier = "recall"  # no AI-generated content cached yet, fall back
 
+        codes = row.get("category_codes") or []
         results.append(
             DueWord(
                 word_id=row["word_id"],
                 word=row["word"],
                 pos=row["pos"],
-                category_code=row["category_code"],
-                category_name=row["category_name"],
+                category_codes=codes,
+                category_names=[CATEGORY_NAMES.get(c, c) for c in codes],
                 meaning_zh=row["meaning_zh"],
                 tier=tier,
                 due=due,

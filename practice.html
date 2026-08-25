@@ -1,0 +1,378 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<title>多益字卡箱 · 練習</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Noto+Sans+TC:wght@400;500;700;900&family=IBM+Plex+Mono:wght@500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --paper:#EEF0E9; --paper-raised:#FFFFFF; --card:#FFFFFF;
+  --ink:#23262B; --ink-soft:#5B6169; --ink-faint:#8A8F97;
+  --line:rgba(35,38,43,.12); --line-strong:rgba(35,38,43,.22);
+  --accent:#B8863B; --accent-ink:#2A1F0C; --accent-soft:rgba(184,134,59,.14);
+  --mastery:#2F6F63; --mastery-soft:rgba(47,111,99,.13);
+  --struggle:#B4502E; --struggle-soft:rgba(180,80,46,.13);
+  --shadow: 0 1px 2px rgba(30,25,10,.06), 0 8px 24px -12px rgba(30,25,10,.18);
+  --radius: 14px;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --paper:#1B1D22; --paper-raised:#22252B; --card:#24272D;
+    --ink:#ECEAE3; --ink-soft:#A8ACB4; --ink-faint:#767B84;
+    --line:rgba(236,234,227,.12); --line-strong:rgba(236,234,227,.22);
+    --accent:#D9A94F; --accent-ink:#241A08; --accent-soft:rgba(217,169,79,.16);
+    --mastery:#4FA593; --mastery-soft:rgba(79,165,147,.16);
+    --struggle:#E08561; --struggle-soft:rgba(224,133,97,.16);
+    --shadow: 0 1px 2px rgba(0,0,0,.3), 0 12px 28px -14px rgba(0,0,0,.6);
+  }
+}
+:root[data-theme="dark"]{
+  --paper:#1B1D22; --paper-raised:#22252B; --card:#24272D;
+  --ink:#ECEAE3; --ink-soft:#A8ACB4; --ink-faint:#767B84;
+  --line:rgba(236,234,227,.12); --line-strong:rgba(236,234,227,.22);
+  --accent:#D9A94F; --accent-ink:#241A08; --accent-soft:rgba(217,169,79,.16);
+  --mastery:#4FA593; --mastery-soft:rgba(79,165,147,.16);
+  --struggle:#E08561; --struggle-soft:rgba(224,133,97,.16);
+  --shadow: 0 1px 2px rgba(0,0,0,.3), 0 12px 28px -14px rgba(0,0,0,.6);
+}
+*{box-sizing:border-box;}
+html,body{margin:0;padding:0;}
+body{background:var(--paper); color:var(--ink); font-family:"Noto Sans TC","PingFang TC","Microsoft JhengHei",sans-serif; min-height:100vh; -webkit-font-smoothing:antialiased;}
+.mono{font-family:"IBM Plex Mono",ui-monospace,monospace;}
+h1,h2,h3{text-wrap:balance;}
+button{font-family:inherit;}
+
+.shell{max-width:760px;margin:0 auto;padding:0 20px 64px;}
+.topbar{display:flex;align-items:baseline;justify-content:space-between;gap:16px;padding:28px 0 18px;border-bottom:1px solid var(--line);}
+.brand{display:flex;align-items:baseline;gap:10px;}
+.brand-mark{font-family:"IBM Plex Mono";font-weight:700;font-size:12px;letter-spacing:.06em;background:var(--accent);color:var(--accent-ink);padding:3px 7px;border-radius:5px;}
+.brand h1{font-size:19px;font-weight:600;margin:0;}
+.brand-sub{font-size:12px;color:var(--ink-faint);}
+.apibase{font-size:11px;color:var(--ink-faint);font-family:"IBM Plex Mono";}
+.logout{background:none;border:1px solid var(--line);color:var(--ink-soft);border-radius:8px;padding:6px 10px;font-size:12px;cursor:pointer;}
+
+nav.tabs{display:flex;gap:4px;margin-top:18px;padding:4px;background:var(--paper-raised);border:1px solid var(--line);border-radius:12px;}
+nav.tabs button{flex:1;background:transparent;border:none;color:var(--ink-soft);font-size:14px;font-weight:500;padding:9px 14px;border-radius:9px;cursor:pointer;}
+nav.tabs button.active{background:var(--accent);color:var(--accent-ink);font-weight:700;}
+
+section.view{display:none;padding-top:26px;}
+section.view.active{display:block;}
+
+.statstrip{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--line);border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;margin-bottom:22px;}
+.stat{background:var(--paper-raised);padding:14px 16px;}
+.stat b{display:block;font-family:"IBM Plex Mono";font-size:22px;font-weight:600;}
+.stat span{font-size:11px;color:var(--ink-faint);}
+
+.stage{display:flex;flex-direction:column;align-items:center;gap:18px;}
+.cardbox{width:100%;max-width:460px;border:1px solid var(--line);border-radius:18px;background:var(--card);box-shadow:var(--shadow);padding:30px 28px;text-align:center;min-height:200px;display:flex;flex-direction:column;align-items:center;justify-content:center;}
+.tierlabel{position:absolute;}
+.wrapcard{position:relative;width:100%;max-width:460px;}
+.tierbadge{position:absolute;top:-10px;left:16px;font-size:10.5px;padding:3px 9px;border-radius:100px;background:var(--accent);color:var(--accent-ink);font-weight:700;letter-spacing:.03em;}
+.word{font-family:"IBM Plex Mono";font-weight:600;font-size:32px;}
+.pos{margin-top:8px;font-size:12px;color:var(--ink-faint);font-style:italic;}
+.def{font-size:22px;font-weight:500;}
+.sentence{font-size:17px;line-height:1.7;}
+.blank{font-family:"IBM Plex Mono";font-weight:700;color:var(--accent);}
+.hint{margin-top:14px;font-size:12px;color:var(--ink-faint);}
+.answer{margin-top:18px;font-family:"IBM Plex Mono";font-weight:700;font-size:20px;color:var(--mastery);}
+.tap{margin-top:20px;font-size:12px;color:var(--ink-faint);}
+.chiprow{display:flex;gap:6px;margin-top:14px;flex-wrap:wrap;justify-content:center;}
+.chip{font-size:10.5px;padding:3px 8px;border-radius:100px;border:1px solid var(--line-strong);color:var(--ink-soft);}
+
+.ratebar{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;width:100%;max-width:460px;}
+.ratebtn{padding:12px 6px;border-radius:10px;border:1px solid var(--line);font-size:13px;font-weight:700;cursor:pointer;background:var(--paper-raised);color:var(--ink);}
+.ratebtn:disabled{opacity:.35;cursor:default;}
+.ratebtn.again{color:var(--struggle);border-color:var(--struggle-soft);background:var(--struggle-soft);}
+.ratebtn.hard{color:var(--ink);}
+.ratebtn.good{color:#fff;background:var(--mastery);border-color:var(--mastery);}
+.ratebtn.easy{color:var(--accent-ink);background:var(--accent);border-color:var(--accent);}
+
+.primary-btn{background:var(--accent);color:var(--accent-ink);border:none;border-radius:10px;padding:11px 22px;font-weight:700;font-size:14px;cursor:pointer;}
+.ghost-btn{background:transparent;color:var(--ink);border:1px solid var(--line-strong);border-radius:10px;padding:10px 18px;font-weight:600;font-size:13.5px;cursor:pointer;}
+.empty{text-align:center;padding:50px 20px;border:1px dashed var(--line-strong);border-radius:var(--radius);color:var(--ink-soft);width:100%;max-width:460px;}
+
+/* MC game */
+.mcq{width:100%;max-width:460px;}
+.mcq-meaning{font-size:24px;font-weight:600;text-align:center;padding:26px 20px;border:1px solid var(--line);border-radius:16px;background:var(--card);box-shadow:var(--shadow);margin-bottom:16px;}
+.mcq-options{display:grid;gap:10px;}
+.mcq-opt{padding:14px 16px;border-radius:12px;border:1px solid var(--line-strong);background:var(--paper-raised);font-family:"IBM Plex Mono";font-size:16px;font-weight:600;cursor:pointer;text-align:left;color:var(--ink);}
+.mcq-opt:hover{border-color:var(--accent);}
+.mcq-opt.correct{border-color:var(--mastery);background:var(--mastery-soft);color:var(--mastery);}
+.mcq-opt.wrong{border-color:var(--struggle);background:var(--struggle-soft);color:var(--struggle);}
+.mcq-opt:disabled{cursor:default;}
+.mcq-progress{font-size:12.5px;color:var(--ink-faint);text-align:center;margin-bottom:12px;}
+
+/* auth */
+.authbox{max-width:340px;margin:60px auto;border:1px solid var(--line);border-radius:var(--radius);background:var(--paper-raised);padding:28px;box-shadow:var(--shadow);}
+.authbox h2{font-size:18px;margin:0 0 18px;}
+.authbox input{width:100%;padding:11px 14px;border-radius:9px;border:1px solid var(--line-strong);background:var(--paper);color:var(--ink);font-size:14px;margin-bottom:10px;}
+.authbox button{width:100%;margin-top:6px;}
+.autherr{color:var(--struggle);font-size:12.5px;margin-top:8px;min-height:16px;}
+.authswitch{text-align:center;margin-top:14px;font-size:12.5px;color:var(--ink-faint);}
+.authswitch a{color:var(--accent);cursor:pointer;text-decoration:underline;}
+</style>
+</head>
+<body>
+<div class="shell">
+  <div class="topbar">
+    <div class="brand">
+      <span class="brand-mark">API</span>
+      <div>
+        <h1>多益字卡箱 · 練習</h1>
+        <div class="brand-sub">接本機 FastAPI + FSRS 後端</div>
+      </div>
+    </div>
+    <div style="text-align:right;">
+      <div class="apibase" id="apibase-label"></div>
+      <button class="logout" id="btn-logout" style="display:none;margin-top:6px;">登出</button>
+    </div>
+  </div>
+
+  <div id="auth-wrap"></div>
+
+  <div id="app-wrap" style="display:none;">
+    <nav class="tabs">
+      <button data-view="review" class="active">複習</button>
+      <button data-view="game">四選一遊戲</button>
+    </nav>
+
+    <section class="view active" id="view-review">
+      <div class="statstrip">
+        <div class="stat"><b id="s-due">–</b><span>待複習</span></div>
+        <div class="stat"><b id="s-overdue">–</b><span>逾期</span></div>
+        <div class="stat"><b id="s-session">0</b><span>本輪已複習</span></div>
+      </div>
+      <div class="stage" id="review-stage"><div class="empty">載入中…</div></div>
+    </section>
+
+    <section class="view" id="view-game">
+      <div class="stage" id="game-stage"><div class="empty">載入中…</div></div>
+    </section>
+  </div>
+</div>
+
+<script>
+const API = localStorage.getItem("toeic_api_base") || "http://localhost:8000";
+document.getElementById("apibase-label").textContent = API;
+
+const TOKEN_KEY = "toeic_jwt";
+function getToken(){ return localStorage.getItem(TOKEN_KEY); }
+function setToken(t){ localStorage.setItem(TOKEN_KEY, t); }
+function clearToken(){ localStorage.removeItem(TOKEN_KEY); }
+
+async function api(path, opts={}){
+  const headers = Object.assign({"Content-Type":"application/json"}, opts.headers||{});
+  const token = getToken();
+  if(token) headers["Authorization"] = "Bearer " + token;
+  const res = await fetch(API + path, Object.assign({}, opts, {headers}));
+  if(res.status === 401){ clearToken(); renderAuth(); throw new Error("unauthorized"); }
+  if(!res.ok){ const t = await res.text(); throw new Error(`${res.status}: ${t}`); }
+  return res.status === 204 ? null : res.json();
+}
+
+/* ================= AUTH ================= */
+function renderAuth(){
+  document.getElementById("app-wrap").style.display = "none";
+  document.getElementById("btn-logout").style.display = "none";
+  const wrap = document.getElementById("auth-wrap");
+  wrap.style.display = "block";
+  let mode = "login";
+  function render(){
+    wrap.innerHTML = `
+      <div class="authbox">
+        <h2>${mode === "login" ? "登入" : "註冊新帳號"}</h2>
+        <input type="email" id="auth-email" placeholder="email">
+        <input type="password" id="auth-pw" placeholder="密碼（至少 8 碼）">
+        <button class="primary-btn" id="auth-submit">${mode === "login" ? "登入" : "註冊"}</button>
+        <div class="autherr" id="auth-err"></div>
+        <div class="authswitch">
+          ${mode === "login" ? '還沒有帳號？<a id="auth-switch">註冊一個</a>' : '已經有帳號？<a id="auth-switch">登入</a>'}
+        </div>
+      </div>`;
+    document.getElementById("auth-switch").onclick = ()=>{ mode = mode === "login" ? "register" : "login"; render(); };
+    document.getElementById("auth-submit").onclick = async ()=>{
+      const email = document.getElementById("auth-email").value.trim();
+      const password = document.getElementById("auth-pw").value;
+      const errEl = document.getElementById("auth-err");
+      errEl.textContent = "";
+      try{
+        const data = await api(`/auth/${mode === "login" ? "login" : "register"}`, {
+          method: "POST", body: JSON.stringify({email, password})
+        });
+        setToken(data.access_token);
+        boot();
+      }catch(e){
+        errEl.textContent = "登入／註冊失敗，檢查帳密或伺服器是否有跑（" + API + "）";
+      }
+    };
+  }
+  render();
+}
+
+document.getElementById("btn-logout").onclick = ()=>{ clearToken(); location.reload(); };
+
+/* ================= REVIEW ================= */
+let sessionCount = 0;
+let currentQueue = [];
+let revealed = false;
+
+async function loadDue(){
+  const stage = document.getElementById("review-stage");
+  stage.innerHTML = `<div class="empty">載入中…</div>`;
+  try{
+    const data = await api("/due?limit=30");
+    document.getElementById("s-due").textContent = data.due_count;
+    document.getElementById("s-overdue").textContent = data.overdue_count;
+    currentQueue = data.words;
+    revealed = false;
+    renderReviewCard();
+  }catch(e){
+    stage.innerHTML = `<div class="empty">連不到後端 API（${API}）。<br>確認 docker compose 有跑、CORS 有開。</div>`;
+  }
+}
+
+function tierLabel(t){ return {flashcard:"辨識", recall:"回想", cloze:"填空"}[t] || t; }
+
+function renderReviewCard(){
+  document.getElementById("s-session").textContent = sessionCount;
+  const stage = document.getElementById("review-stage");
+  if(currentQueue.length === 0){
+    stage.innerHTML = `<div class="empty">這輪待複習的字都複習完了 🎉<br><button class="primary-btn" style="margin-top:14px;" id="btn-refresh">重新整理</button></div>`;
+    document.getElementById("btn-refresh").onclick = loadDue;
+    return;
+  }
+  const w = currentQueue[0];
+  let body = "";
+  if(w.tier === "cloze" && w.cloze_sentence){
+    const blankHtml = revealed
+      ? `<span class="answer">${w.word}</span>`
+      : `<span class="blank">${w.cloze_hint_prefix || ""}${"_".repeat(Math.max(1, w.word.length - (w.cloze_hint_prefix||"").length - (w.cloze_hint_suffix||"").length))}${w.cloze_hint_suffix || ""}</span>`;
+    body = `
+      <div class="tierbadge">填空 CLOZE</div>
+      <div class="sentence">${w.cloze_sentence.replace("___", "")}<br>${blankHtml}</div>
+      ${!revealed ? `<div class="hint">點卡片看答案</div>` : ""}
+    `;
+  } else if(w.tier === "recall"){
+    body = `
+      <div class="tierbadge">回想 RECALL</div>
+      <div class="def">${w.meaning_zh || "（尚無中文釋義）"}</div>
+      ${revealed ? `<div class="answer">${w.word}</div>` : `<div class="hint">看中文，回想英文單字，點卡片看答案</div>`}
+    `;
+  } else {
+    body = `
+      <div class="tierbadge">辨識 FLASHCARD</div>
+      <div class="word">${w.word}</div>
+      <div class="pos">${w.pos || ""}</div>
+      ${revealed ? `<div class="def" style="margin-top:14px;">${w.meaning_zh || ""}</div>` : `<div class="hint">點卡片看意思</div>`}
+    `;
+  }
+  const chips = (w.category_names||[]).map(n=>`<span class="chip">${n}</span>`).join("");
+  stage.innerHTML = `
+    <div class="wrapcard">
+      <div class="cardbox" id="review-card">${body}${revealed ? `<div class="chiprow">${chips}</div>` : ""}</div>
+    </div>
+    <div class="ratebar">
+      <button class="ratebtn again" id="r1" ${!revealed?"disabled":""}>忘記了</button>
+      <button class="ratebtn hard" id="r2" ${!revealed?"disabled":""}>困難</button>
+      <button class="ratebtn good" id="r3" ${!revealed?"disabled":""}>不錯</button>
+      <button class="ratebtn easy" id="r4" ${!revealed?"disabled":""}>簡單</button>
+    </div>
+  `;
+  document.getElementById("review-card").onclick = ()=>{ revealed = true; renderReviewCard(); };
+  [1,2,3,4].forEach(n=>{
+    const btn = document.getElementById("r"+n);
+    if(btn) btn.onclick = (e)=>{ e.stopPropagation(); submitRating(w, n); };
+  });
+}
+
+async function submitRating(word, rating){
+  try{
+    await api("/review", {method:"POST", body: JSON.stringify({
+      word_id: word.word_id, rating, task_type: word.tier
+    })});
+  }catch(e){ /* keep going even if one submission fails */ }
+  sessionCount++;
+  currentQueue.shift();
+  revealed = false;
+  renderReviewCard();
+}
+
+/* ================= MC GAME ================= */
+let mcQueue = [];
+let mcIdx = 0;
+let mcCorrect = 0;
+
+async function loadGame(){
+  const stage = document.getElementById("game-stage");
+  stage.innerHTML = `<div class="empty">載入中…</div>`;
+  try{
+    mcQueue = await api("/game/mc/questions?count=10");
+    mcIdx = 0; mcCorrect = 0;
+    renderGame();
+  }catch(e){
+    stage.innerHTML = `<div class="empty">連不到後端 API（${API}）。</div>`;
+  }
+}
+
+function renderGame(){
+  const stage = document.getElementById("game-stage");
+  if(mcIdx >= mcQueue.length){
+    stage.innerHTML = `<div class="empty">這輪完成了：${mcCorrect} / ${mcQueue.length} 題答對<br><button class="primary-btn" style="margin-top:14px;" id="btn-mc-restart">再玩一輪</button></div>`;
+    document.getElementById("btn-mc-restart").onclick = loadGame;
+    return;
+  }
+  const q = mcQueue[mcIdx];
+  stage.innerHTML = `
+    <div class="mcq">
+      <div class="mcq-progress">第 ${mcIdx+1} / ${mcQueue.length} 題</div>
+      <div class="mcq-meaning">${q.meaning_zh}</div>
+      <div class="mcq-options">
+        ${q.options.map(o=>`<button class="mcq-opt" data-wid="${o.word_id}">${o.word}</button>`).join("")}
+      </div>
+    </div>`;
+  stage.querySelectorAll(".mcq-opt").forEach(btn=>{
+    btn.onclick = async ()=>{
+      stage.querySelectorAll(".mcq-opt").forEach(b=>b.disabled = true);
+      const selected = parseInt(btn.dataset.wid, 10);
+      try{
+        const result = await api("/game/mc/answer", {method:"POST", body: JSON.stringify({
+          word_id: q.word_id, selected_word_id: selected
+        })});
+        if(result.correct){ mcCorrect++; btn.classList.add("correct"); }
+        else{
+          btn.classList.add("wrong");
+          const correctBtn = [...stage.querySelectorAll(".mcq-opt")].find(b=>b.textContent === result.correct_word);
+          if(correctBtn) correctBtn.classList.add("correct");
+        }
+      }catch(e){}
+      setTimeout(()=>{ mcIdx++; renderGame(); }, 900);
+    };
+  });
+}
+
+/* ================= nav & boot ================= */
+document.querySelectorAll("nav.tabs button").forEach(btn=>{
+  btn.addEventListener("click", ()=>{
+    document.querySelectorAll("nav.tabs button").forEach(b=>b.classList.remove("active"));
+    btn.classList.add("active");
+    document.querySelectorAll("section.view").forEach(v=>v.classList.remove("active"));
+    document.getElementById("view-"+btn.dataset.view).classList.add("active");
+    if(btn.dataset.view === "review") loadDue();
+    if(btn.dataset.view === "game") loadGame();
+  });
+});
+
+function boot(){
+  document.getElementById("auth-wrap").style.display = "none";
+  document.getElementById("app-wrap").style.display = "block";
+  document.getElementById("btn-logout").style.display = "inline-block";
+  loadDue();
+}
+
+if(getToken()){ boot(); } else { renderAuth(); }
+</script>
+</body>
+</html>

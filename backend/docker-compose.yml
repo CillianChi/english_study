@@ -11,6 +11,28 @@ services:
     volumes:
       - toeic_pgdata:/var/lib/postgresql/data
       - ./schema.sql:/docker-entrypoint-initdb.d/01_schema.sql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U toeic"]
+      interval: 2s
+      timeout: 3s
+      retries: 10
+
+  api:
+    build: .
+    restart: unless-stopped
+    environment:
+      DATABASE_URL: postgresql+psycopg2://toeic:toeic@db:5432/toeic
+      JWT_SECRET: ${JWT_SECRET:-dev-only-change-me}
+      JWT_EXPIRE_MINUTES: 10080
+    ports:
+      - "8000:8000"
+    volumes:
+      - .:/app
+      - ../toeic3000_categorized.csv:/data/toeic3000_categorized.csv:ro
+      - ../toeic3000_meanings.json:/data/toeic3000_meanings.json:ro
+    depends_on:
+      db:
+        condition: service_healthy
 
 volumes:
   toeic_pgdata:

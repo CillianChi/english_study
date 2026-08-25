@@ -22,8 +22,8 @@ class DueWord(BaseModel):
     word_id: int
     word: str
     pos: str | None
-    category_code: str | None
-    category_name: str | None
+    category_codes: list[str]
+    category_names: list[str]
     meaning_zh: str | None
     tier: str  # "flashcard" | "recall" | "cloze"
     due: datetime
