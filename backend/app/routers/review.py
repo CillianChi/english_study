@@ -85,7 +85,7 @@ def get_due(
         text(
             f"""
             SELECT ls.word_id, ls.state, ls.stability, ls.difficulty, ls.due,
-                   ls.reps, ls.lapses, w.word, w.pos, w.meaning_zh,
+                   ls.reps, ls.lapses, w.word, w.pos, w.meaning_zh, w.phonetic_kk,
                    wc_agg.codes AS category_codes
             FROM learning_state ls
             JOIN words w ON w.id = ls.word_id
@@ -101,7 +101,7 @@ def get_due(
     fresh_rows = db.execute(
         text(
             f"""
-            SELECT w.id AS word_id, w.word, w.pos, w.meaning_zh,
+            SELECT w.id AS word_id, w.word, w.pos, w.meaning_zh, w.phonetic_kk,
                    wc_agg.codes AS category_codes
             FROM words w
             LEFT JOIN learning_state ls ON ls.word_id = w.id AND ls.user_id = :uid
@@ -148,6 +148,7 @@ def get_due(
                 category_codes=codes,
                 category_names=[CATEGORY_NAMES.get(c, c) for c in codes],
                 meaning_zh=row["meaning_zh"],
+                phonetic_kk=row["phonetic_kk"],
                 tier=tier,
                 due=due,
                 cloze_sentence=cloze["sentence_template"] if cloze else None,

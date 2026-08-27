@@ -8,4 +8,5 @@ backend/__pycache__/
 backend/app/__pycache__/
 backend/app/routers/__pycache__/
 backend/.venv/
+backend/audio_cache/
 

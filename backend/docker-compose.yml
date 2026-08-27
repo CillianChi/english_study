@@ -30,6 +30,7 @@ services:
       - .:/app
       - ../toeic3000_categorized.csv:/data/toeic3000_categorized.csv:ro
       - ../toeic3000_meanings.json:/data/toeic3000_meanings.json:ro
+      - ../toeic3000_phonetics.json:/data/toeic3000_phonetics.json:ro
     depends_on:
       db:
         condition: service_healthy

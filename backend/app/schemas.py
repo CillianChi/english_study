@@ -25,6 +25,7 @@ class DueWord(BaseModel):
     category_codes: list[str]
     category_names: list[str]
     meaning_zh: str | None
+    phonetic_kk: str | None
     tier: str  # "flashcard" | "recall" | "cloze"
     due: datetime
     cloze_sentence: str | None = None

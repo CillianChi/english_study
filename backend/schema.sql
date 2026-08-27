@@ -17,7 +17,8 @@ CREATE TABLE words (
     id            SERIAL PRIMARY KEY,
     word          TEXT NOT NULL UNIQUE,
     pos           TEXT,
-    meaning_zh    TEXT
+    meaning_zh    TEXT,
+    phonetic_kk   TEXT
 );
 
 CREATE INDEX idx_words_word_trgm ON words USING gin (word gin_trgm_ops);
