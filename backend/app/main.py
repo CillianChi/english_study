@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from .routers import auth, game, review
+from .routers import auth, game, review, tts
 
 app = FastAPI(title="TOEIC 背單字 API")
 
@@ -15,6 +15,7 @@ app.add_middleware(
 app.include_router(auth.router)
 app.include_router(review.router)
 app.include_router(game.router)
+app.include_router(tts.router)
 
 
 @app.get("/health")

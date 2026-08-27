@@ -8,3 +8,5 @@ passlib[bcrypt]>=1.7
 python-jose[cryptography]>=3.3
 fsrs>=6.3
 python-dotenv>=1.0
+eng-to-ipa>=0.0.2  # only needed to (re)run generate_phonetics.py
+edge-tts>=7.0

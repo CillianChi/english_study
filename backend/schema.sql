@@ -19,7 +19,8 @@ CREATE TABLE words (
     pos           TEXT,
     category_code TEXT,
     category_name TEXT,
-    meaning_zh    TEXT
+    meaning_zh    TEXT,
+    phonetic_kk   TEXT
 );
 
 CREATE INDEX idx_words_category ON words(category_code);
